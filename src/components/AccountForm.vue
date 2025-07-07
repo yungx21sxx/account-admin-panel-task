@@ -1,79 +1,57 @@
 <script setup lang="ts">
-import type {IAccount, AccountType} from "@/types/account";
-import {mdiEye, mdiEyeOff, mdiTrashCan} from "@mdi/js";
-import {reactive, ref, watch} from "vue";
-import {useAccounts} from "@/composable/useAccounts.ts";
+import type { IAccount, AccountType } from "@/types/account";
+import { mdiEye, mdiEyeOff, mdiTrashCan } from "@mdi/js";
+import { reactive, ref, watch } from "vue";
+import { useAccounts } from "@/composable/useAccounts.ts";
 
-const {parseLabels} = useAccounts()
+const { parseLabels } = useAccounts();
 
 const props = defineProps<{
   account: IAccount
-}>()
+}>();
 
 const emit = defineEmits<{
   (e: 'update', value: IAccount): void
   (e: 'remove', id: string): void
-}>()
+}>();
 
-const required = (field: string) => (v: any) => !!v || `Поле «${field}» обязательно для заполнения`;
-const maxLength = (field: string, len: number) => (v: any) =>
-  !v || v.length <= len || `Поле «${field}» не должно превышать ${len} символов`;
+const required = () => (v: any) => !!v;
+const maxLength = (len: number) => (v: any) =>
+  !v || v.length <= len;
 
-const labelRules = [
-  required('Метки'),
-  maxLength('Метки', 50),
-]
+const labelRules = [required(), maxLength(50)];
+const loginRules = [required(), maxLength(100)];
+const passwordRules = [required(), maxLength(100)];
 
-const loginRules = [
-  required('Логин'),
-  maxLength('Логин', 100),
-]
-
-const passwordRules = [
-  required('Пароль'),
-  maxLength('Пароль', 100),
-]
-
-const formRef = ref()
-const localAccount = reactive({...props.account})
-
-const selectOptions: {text: string, value: AccountType}[] = [
-  {
-    text: 'Локальная',
-    value: 'LOCAL'
-  },
-  {
-    text: 'LDAP',
-    value: 'LDAP'
-  },
-];
-
+const formRef = ref();
 const showPassword = ref(false);
+const localAccount = reactive({ ...props.account });
+const localLabels = ref(localAccount.labels.map(label => label.text).join("; "));
 
-const localLabels = ref(localAccount.labels.map(label => label.text).join('; '))
+const selectOptions: { text: string; value: AccountType }[] = [
+  { text: "Локальная", value: "LOCAL" },
+  { text: "LDAP", value: "LDAP" },
+];
 
 watch([localAccount, localLabels], async () => {
   if (!formRef.value?.validate) return;
-  const { valid } = await formRef.value.validate()
+  const { valid } = await formRef.value.validate();
   if (!valid) return;
 
-  const {password, labels, empty, ...acountData} = localAccount;
+  const { password, labels, empty, ...accountData } = localAccount;
 
-  emit('update', {
-    password: localAccount.type === 'LDAP' ? null : password,
+  emit("update", {
+    password: localAccount.type === "LDAP" ? null : password,
     labels: parseLabels(localLabels.value),
     empty: false,
-    ...acountData
-  })
-
-},{
+    ...accountData,
+  });
+}, {
   deep: true,
-  immediate: true
-})
+  immediate: true,
+});
 
-const removeAccount = () => emit('remove', localAccount.id)
-
-
+const removeAccount = () => emit("remove", localAccount.id);
 </script>
 
 <template>
@@ -83,6 +61,8 @@ const removeAccount = () => emit('remove', localAccount.id)
     fast-fail
     ref="formRef"
   >
+    <div class="mobile-id">id: {{ localAccount.id }}</div>
+
     <v-text-field
       label="Метки"
       v-model="localLabels"
@@ -95,7 +75,7 @@ const removeAccount = () => emit('remove', localAccount.id)
       v-model="localAccount.type"
       item-value="value"
       item-title="text"
-      :rules="[required('Тип записи')]"
+      :rules="[required()]"
     />
 
     <v-text-field
@@ -130,11 +110,27 @@ const removeAccount = () => emit('remove', localAccount.id)
 .form
   display: grid
   grid-template-columns: 1.5fr 1fr 1.5fr 1.5fr 48px
-
-  > * + *
-    margin-left: 24px
+  align-items: start
+  gap: 16px
+  padding: 8px 0
 
   &.login-only
     grid-template-columns: 1.5fr 1fr 3fr 48px
+
+  &, &.login-only
+    @media (max-width: 600px)
+      grid-template-columns: 1fr
+      > * + *
+        margin-left: 0
+
+.mobile-id
+  display: none
+  font-weight: 500
+  margin-bottom: 8px
+  font-size: 14px
+  color: #bfbfbf
+
+  @media (max-width: 600px)
+    display: block
 
 </style>

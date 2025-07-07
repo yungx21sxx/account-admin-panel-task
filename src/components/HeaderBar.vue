@@ -6,7 +6,14 @@ import { useAccountsStore} from "@/stores/accounts.ts";
 const {createEmptyAccount} = useAccounts();
 const store = useAccountsStore();
 
-const addEmptyAccount = () => store.addAccount(createEmptyAccount())
+const addEmptyAccount = () => {
+  store.addAccount(createEmptyAccount());
+  window.scrollTo({
+    top: document.body.scrollHeight,
+    behavior: 'smooth'
+  });
+}
+
 
 </script>
 

@@ -53,8 +53,8 @@ const removeAccount = (id: string) => {
     display: grid
     grid-template-columns: 1.5fr 1fr 1.5fr 1.5fr 48px
 
-    > * + *
-      margin-left: 24px
+    @media (max-width: 600px)
+      display: none
 
   &__form
     margin-bottom: 16px

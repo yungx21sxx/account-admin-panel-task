@@ -1,5 +1,9 @@
 @import './base.css';
 
+body {
+  scroll-behavior: smooth;
+}
+
 .wrapper {
   max-width: 1300px;
   margin: 0 auto;

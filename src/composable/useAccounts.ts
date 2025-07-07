@@ -7,7 +7,7 @@ export function useAccounts() {
     return {
       id: uuid(),
       labels: [],
-      type: 'LDAP',
+      type: null,
       login: '',
       password: null,
       empty: true

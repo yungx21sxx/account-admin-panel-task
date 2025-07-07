@@ -37,8 +37,8 @@ export const mockAccounts: IAccount[] = [
 ]
 
 export const useAccountsStore = defineStore('accounts', {
-  state: () => ({
-    accounts: mockAccounts as IAccount[]
+  state: (): { accounts: IAccount[] } => ({
+    accounts: mockAccounts
   }),
   persist: {
     key: 'accounts',
